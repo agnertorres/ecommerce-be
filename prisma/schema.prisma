@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             String          @id @default(uuid()) @db.Uuid
+  imageUrl       String?         @db.VarChar
+  name           String          @db.VarChar
+  cpf            String          @unique @db.VarChar
+  nickname       String?         @db.VarChar
+  email          String          @unique @db.VarChar
+  phone          String          @unique @db.VarChar
+  password       String          @db.VarChar
+  createdAt      DateTime        @default(now()) @db.Date
+  
+  addresses      Address[]
+  paymentMethods PaymentMethod[]
+  products       Product[]
+  orders         Order[]
+}
+
+model Address {
+  id         String   @id @default(uuid()) @db.Uuid
+  street     String   @db.VarChar
+  number     String   @db.VarChar
+  complement String?  @db.VarChar
+  city       String   @db.VarChar
+  state      String   @db.VarChar
+  zipcode    String   @db.VarChar
+  isDefault  Boolean  @default(false)
+  userId     String   @db.Uuid
+  createdAt  DateTime @default(now()) @db.Date
+
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model PaymentMethod {
+  id             String   @id @default(uuid()) @db.Uuid
+  type           String   @db.VarChar
+  lastFourDigits String   @db.VarChar
+  token          String   @db.VarChar
+  isDefault      Boolean  @default(false)
+  userId         String   @db.Uuid
+  createdAt      DateTime @default(now()) @db.Date
+
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+model Category {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @unique @db.VarChar
+  createdAt DateTime  @default(now()) @db.Date
+  
+  products  Product[]
+}
+
+model Product {
+  id          String         @id @default(uuid()) @db.Uuid
+  title       String         @db.VarChar
+  stock       BigInt         @default(0)
+  price       Decimal        @db.Decimal(10, 2)
+  categoryId  String         @db.Uuid
+  userId      String         @db.Uuid
+  createdAt   DateTime       @default(now()) @db.Date
+
+  category    Category       @relation(fields: [categoryId], references: [id])
+  user        User           @relation(fields: [userId], references: [id])
+  images      ProductImage[]
+  orderItems  OrderItem[]
+}
+
+model ProductImage {
+  id        String   @id @default(uuid()) @db.Uuid
+  url       String   @db.VarChar
+  productId String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Date
+
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id                   String      @id @default(uuid()) @db.Uuid
+  number               String      @unique @db.VarChar
+  status               String      @db.VarChar
+  totalAmount          Decimal     @db.Decimal(10, 2)
+  shippingFee          Decimal     @db.Decimal(10, 2)
+  shippingStreet       String      @db.VarChar
+  shippingNumber       String      @db.VarChar
+  shippingZipCode      String      @db.VarChar
+  shippingCity         String      @db.VarChar
+  shippingState        String      @db.VarChar
+  shippingComplement   String?     @db.VarChar
+  userId               String      @db.Uuid
+  paymentMethodName    String      @db.VarChar
+  paymentLastFourDigits String?    @db.VarChar
+  paymentInstallments  Int?
+  gatewayTransactionId String?     @db.VarChar
+  createdAt            DateTime    @default(now()) @db.Date
+
+  user                 User        @relation(fields: [userId], references: [id])
+  items                OrderItem[]
+}
+
+model OrderItem {
+  id                   String   @id @default(uuid()) @db.Uuid
+  orderId              String   @db.Uuid
+  productId            String   @db.Uuid
+  productNameSnapshot  String   @db.VarChar
+  productImageSnapshot String   @db.VarChar
+  priceAtTimestamp     Decimal  @db.Decimal(10, 2)
+  quantity             Int
+  createdAt            DateTime @default(now()) @db.Date
+
+  order                Order    @relation(fields: [orderId], references: [id])
+  product              Product  @relation(fields: [productId], references: [id])
+}
