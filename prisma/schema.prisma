@@ -47,13 +47,13 @@ model Address {
 
 model PaymentMethod {
   id             String   @id @default(uuid()) @db.Uuid
-  type           String   @db.VarChar
+  brand          String   @db.VarChar
   lastFourDigits String   @db.VarChar
   token          String   @db.VarChar
-  isDefault      Boolean  @default(false)
   userId         String   @db.Uuid
   createdAt      DateTime @default(now()) @db.Date
-
+  expirationMonth String  @db.VarChar
+  expirationYear String   @db.VarChar
   user           User     @relation(fields: [userId], references: [id])
 }
 
