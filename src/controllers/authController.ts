@@ -11,11 +11,11 @@ export class AuthController {
       if(user?.password === req.body.password) {
         res.status(200).json(user);
       } else {
-        res.status(401).json({ error: "Usuário ou senha inválidos" });
+        res.status(401).json({ message: "Usuário ou senha inválidos" });
       }
 
     } catch (error) {
-      res.status(400).json({ error: "Erro ao criar usuário" });
+      res.status(400).json({ message: "Não foi possível criar usuário" });
     }
   }
 }

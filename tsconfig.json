@@ -4,8 +4,6 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-
-
     "types": [],
     // For nodejs:
     // "lib": ["esnext"],

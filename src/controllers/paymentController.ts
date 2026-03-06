@@ -14,7 +14,7 @@ export class PaymentController {
       
       res.status(201).json(newPaymentMethod);
     } catch (error) {
-      res.status(400).json({ error: "Erro ao criar método de pagamento" });
+      res.status(400).json({ message: "Não foi possível criar método de pagamento" });
     }
   }
 
@@ -25,7 +25,7 @@ export class PaymentController {
       const user = await paymentService.deletePaymentMethod(id, paymentId);
       res.status(200).json(user);
     } catch (error) {
-      res.status(400).json({ error: "Erro ao remover método de pagamento" });
+      res.status(400).json({ message: "Não foi possível remover método de pagamento" });
     }
   }
 }

@@ -13,7 +13,7 @@ export class AddressController {
       res.status(201).json(user);
     } catch (error) {
       console.log(error);
-      res.status(400).json({ error: "Erro ao criar endereço" });
+      res.status(400).json({ message: "Não foi possível criar endereço" });
     }
   }
   async updateAddress(req: Request, res: Response) {
@@ -22,10 +22,10 @@ export class AddressController {
       const addressData = req.body;
 
       const user = await addressService.updateAddress(id, addressId, addressData);
-      res.status(201).json(user);
+      res.status(200).json(user);
     } catch (error) {
       console.log(error);
-      res.status(400).json({ error: "Erro ao alterar endereço" });
+      res.status(400).json({ message: "Não foi possível alterar endereço" });
     }
   }
 
@@ -34,10 +34,10 @@ export class AddressController {
       const { id, addressId } = req.params;
 
       const user = await addressService.deleteAddress(id, addressId);
-      res.status(201).json(user);
+      res.status(200).json(user);
     } catch (error) {
       console.log(error);
-      res.status(400).json({ error: "Erro ao criar endereço" });
+      res.status(400).json({ message: "Não foi possível remover endereço" });
     }
   }
 
@@ -48,7 +48,7 @@ export class AddressController {
       res.status(200).json(user);
     } catch (error) {
       console.log(error);
-      res.status(400).json({ error: "Erro ao retornar endereços" });
+      res.status(400).json({ message: "Não foi possível retornar endereços" });
     }
   }
 }

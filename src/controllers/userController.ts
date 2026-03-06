@@ -19,7 +19,7 @@ export class UserController {
       const user = await userService.createUser(req.body);
       res.status(201).json(user);
     } catch (error) {
-      res.status(400).json({ error: "Erro ao criar usuário" });
+      res.status(400).json({ message: "Não foi possível criar usuário" });
     }
   }
 
@@ -30,7 +30,7 @@ export class UserController {
       const user = await userService.updatePassword(id, currentPassword, newPassword);
       res.status(200).json(user);
     } catch (error) {
-      res.status(400).json({ error: "Erro ao trocar a senha" });
+      res.status(400).json({ message: "Não foi possível trocar a senha" });
     }
   }
 
@@ -40,7 +40,7 @@ export class UserController {
       const user = await userService.updateUser(id, req.body);
       res.status(200).json(user);
     } catch (error) {
-      res.status(400).json({ error: "Erro para alterar dados" });
+      res.status(400).json({ message: "Não foi possível alterar dados" });
     }
   }
 }
