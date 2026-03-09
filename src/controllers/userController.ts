@@ -18,8 +18,8 @@ export class UserController {
     try {
       const user = await userService.createUser(req.body);
       res.status(201).json(user);
-    } catch (error) {
-      res.status(400).json({ message: "Não foi possível criar usuário" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
     }
   }
 

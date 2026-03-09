@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: agnertorres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+      - "5555:5555"
+  app:
+    build: .
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'     # Limita a 50% de um núcleo de CPU
+          memory: 1024M     # Limita a 512MB de RAM
+        reservations:
+          memory: 512M     # Garante que o container sempre tenha ao menos 128MB
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "postgresql://agnertorres:password@db:5432/mydatabase"

@@ -1,4 +1,5 @@
 import { prisma } from '@/config/prisma';
+import { Prisma } from "../../generated/prisma/client";
 
 interface User {
   name: string;
@@ -34,16 +35,38 @@ export class UserService {
   }
 
   async createUser(data: User) {
-    // Aqui você poderia validar se o CPF é válido antes de salvar
-    return await prisma.user.create({
-      data,
-      include: {
-        addresses: {
-          orderBy: { isDefault: 'desc' }
-        },
-        paymentMethods: true,
+    try {
+      return await prisma.user.create({
+        data,
+        include: {
+          addresses: {
+            orderBy: { isDefault: 'desc' }
+          },
+          paymentMethods: true,
+        }
+      });
+    } catch (err) {
+      
+      if (err instanceof Prisma.PrismaClientKnownRequestError) {
+        if (err.code === 'P2002') {
+          const target = (err.meta?.target as string[]) || [];
+          const message = err.message || "";
+
+          if (target.includes('email') || message.includes('(`email`)')) {
+            throw new Error("Este e-mail já está em uso.");
+          }
+          
+          if (target.includes('cpf') || message.includes('(`cpf`)')) {
+            throw new Error("Este CPF já está cadastrado.");
+          }
+
+          if (target.includes('phone') || message.includes('(`phone`)')) {
+            throw new Error("Este telefone já está cadastrado.");
+          }
+        }
       }
-    });
+      throw new Error("Erro ao criar usuário. Tente novamente mais tarde.");
+    }
   }
 
   async updatePassword(id: string, currentPassword: string, newPassword: string) {
