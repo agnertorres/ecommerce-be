@@ -3,6 +3,10 @@ import { Prisma } from "../../generated/prisma/client";
 import bcrypt from 'bcrypt';
 import { userSafeSelect } from '@/utils';
 
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET;
+
 interface User {
   name: string;
   email: string;
@@ -37,10 +41,22 @@ export class UserService {
     }
 
     try {
-      return await prisma.user.create({
+      const user = await prisma.user.create({
         data: newUser,
         select: userSafeSelect,
       });
+
+      if (!JWT_SECRET) {
+        throw new Error('Ocorreu um erro inesperado.');
+      }
+
+      const token = jwt.sign(
+        { id: user.id, email: user.email }, 
+        JWT_SECRET, 
+        { expiresIn: '7d' },
+      );
+
+      return { user, token };
     } catch (err) {
       
       if (err instanceof Prisma.PrismaClientKnownRequestError) {
@@ -61,7 +77,7 @@ export class UserService {
           }
         }
       }
-      throw new Error("Erro ao criar usuário. Tente novamente mais tarde.");
+      throw new Error('Erro ao criar usuário. Tente novamente mais tarde.');
     }
   }
 
@@ -69,7 +85,7 @@ export class UserService {
     const user = await prisma.user.findUnique({ where: { id } });
 
     if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
-      throw new Error("Credenciais inválidas.");
+      throw new Error('Credenciais inválidas.');
     }
 
     const password = await bcrypt.hash(newPassword, 10);
@@ -84,10 +100,16 @@ export class UserService {
   }
 
   async updateUser(id: string, userData: User) {
+    const { name, email, cpf, nickname, phone} = userData;
+    
     return await prisma.user.update({
       where: { id },
       data: {
-        ...userData,
+        name,
+        email,
+        cpf,
+        nickname,
+        phone,
       },
       select: userSafeSelect,
     });
