@@ -1,4 +1,5 @@
 import { prisma } from '@/config/prisma';
+import { userSafeSelect } from '@/utils';
 
 export interface PaymentMethod {
 	lastFourDigits: string;
@@ -26,10 +27,7 @@ export class PaymentService {
 
       return await tx.user.findUnique({
         where: { id: userId },
-        include: {
-          addresses: { orderBy: { isDefault: 'desc' } },
-          paymentMethods: true,
-        },
+        select: userSafeSelect,
       });
     });
   }

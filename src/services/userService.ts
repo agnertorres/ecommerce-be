@@ -1,5 +1,7 @@
 import { prisma } from '@/config/prisma';
 import { Prisma } from "../../generated/prisma/client";
+import bcrypt from 'bcrypt';
+import { userSafeSelect } from '@/utils';
 
 interface User {
   name: string;
@@ -12,38 +14,32 @@ interface User {
 
 export class UserService {
   async getAllUsers() {
-    return await prisma.user.findMany({
-      include: {
-        addresses: {
-          orderBy: { isDefault: 'desc' }
-        },
-        paymentMethods: true,
-      },
+    const user = await prisma.user.findMany({
+      select: userSafeSelect,
     });
+
+    return user;
   }
 
   async getById(id: string) {
     return await prisma.user.findUnique({ 
       where: { id },
-      include: {
-        addresses: {
-          orderBy: { isDefault: 'desc' }
-        },
-        paymentMethods: true,
-      }
+      select: userSafeSelect,
     });
   }
 
   async createUser(data: User) {
+    const encryptedPassword = await bcrypt.hash(data.password, 10);
+
+    const newUser = {
+      ...data,
+      password: encryptedPassword,
+    }
+
     try {
       return await prisma.user.create({
-        data,
-        include: {
-          addresses: {
-            orderBy: { isDefault: 'desc' }
-          },
-          paymentMethods: true,
-        }
+        data: newUser,
+        select: userSafeSelect,
       });
     } catch (err) {
       
@@ -71,23 +67,19 @@ export class UserService {
 
   async updatePassword(id: string, currentPassword: string, newPassword: string) {
     const user = await prisma.user.findUnique({ where: { id } });
-    const isMatch = currentPassword === user?.password;
 
-    if (!isMatch) {
-      throw new Error("A senha atual está incorreta.");
+    if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
+      throw new Error("Credenciais inválidas.");
     }
+
+    const password = await bcrypt.hash(newPassword, 10);
 
     return await prisma.user.update({
       where: { id },
       data: {
-        password: newPassword,
+        password,
       },
-      include: {
-        addresses: {
-          orderBy: { isDefault: 'desc' }
-        },
-        paymentMethods: true,
-      }
+      select: userSafeSelect,
     });
   }
 
@@ -97,12 +89,7 @@ export class UserService {
       data: {
         ...userData,
       },
-      include: {
-        addresses: {
-          orderBy: { isDefault: 'desc' }
-        },
-        paymentMethods: true,
-      }
+      select: userSafeSelect,
     });
   }
 }

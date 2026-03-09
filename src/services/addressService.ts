@@ -1,4 +1,5 @@
 import { prisma } from '@/config/prisma';
+import { userSafeSelect } from '@/utils';
 
 interface Address {
   city: string;
@@ -27,12 +28,7 @@ export class AddressService {
           create: data,
         },
       },
-      include: {
-        addresses: {
-          orderBy: { isDefault: 'desc' }
-        },
-        paymentMethods: true,
-      },
+      select: userSafeSelect,
     });
   }
 
@@ -61,12 +57,7 @@ export class AddressService {
       data: {
         addresses: addressUpdateAction
       },
-      include: {
-        addresses: {
-          orderBy: { isDefault: 'desc' }
-        },
-        paymentMethods: true,
-      }
+      select: userSafeSelect,
     });
   }
 
@@ -97,12 +88,7 @@ export class AddressService {
 
       return await tx.user.findUnique({
         where: { id: userId },
-        include: {
-          addresses: {
-            orderBy: { isDefault: 'desc' }
-          },
-          paymentMethods: true,
-        }
+        select: userSafeSelect,
       });
     });
   }
