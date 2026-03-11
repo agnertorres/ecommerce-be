@@ -35,7 +35,7 @@ export class UserController {
     try {
       const user = await userService.updatePassword(id, currentPassword, newPassword);
       res.status(200).json(user);
-    } catch (error) {
+    } catch (error: any) {
       res.status(400).json({ message: 'Não foi possível trocar a senha' });
     }
   }
@@ -51,7 +51,7 @@ export class UserController {
     try {
       const user = await userService.updateUser(id, req.body);
       res.status(200).json(user);
-    } catch (error) {
+    } catch (error: any) {
       res.status(400).json({ message: 'Não foi possível alterar dados' });
     }
   }

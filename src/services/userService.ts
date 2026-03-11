@@ -14,6 +14,7 @@ interface User {
   cpf: string; 
   phone: string;
   password: string;
+  imageUrl: string;
 }
 
 export class UserService {
@@ -100,7 +101,7 @@ export class UserService {
   }
 
   async updateUser(id: string, userData: User) {
-    const { name, email, cpf, nickname, phone} = userData;
+    const { name, email, cpf, nickname, phone, imageUrl } = userData;
     
     return await prisma.user.update({
       where: { id },
@@ -110,6 +111,7 @@ export class UserService {
         cpf,
         nickname,
         phone,
+        imageUrl,
       },
       select: userSafeSelect,
     });
